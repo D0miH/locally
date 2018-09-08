@@ -4,5 +4,12 @@
 # ignore node_modules
 node_modules/
 
+# ignore logs
+yarn-error.log
+
 # IDE settings
 .idea
+
+# builds
+build/
+dist/
