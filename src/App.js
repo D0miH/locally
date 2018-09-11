@@ -1,21 +1,20 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import Sidebar from "./components/Sidebar/Sidebar";
+import TextField from "./components/TextEntry/TextField";
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
-      </div>
-    );
-  }
+class App extends React.Component {
+    render() {
+        console.log(window.screen);
+        return (
+            <div className="App" style={{ backgroundColor: "#3E424C", width: "100%", height: "100%" }}>
+                <Sidebar />
+
+                <div className={"AppContent"} style={{ position: "relative", float: "left", width: window.innerWidth - 251, height: "100%" }}>
+                    <TextField />
+                </div>
+            </div>
+        );
+    }
 }
 
 export default App;
