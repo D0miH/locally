@@ -7,7 +7,7 @@ const styles = (theme) => ({
         backgroundColor: theme.palette.primary.light,
         color: theme.palette.primary.contrastText,
         position: "absolute",
-        right: 50
+        right: 60
     },
     textField: {
         backgroundColor: theme.palette.primary.light,
@@ -20,10 +20,12 @@ class TextField extends React.Component {
         messageValue: ""
     };
 
-    onSend() {
+    onSend(e) {
+        e.preventDefault();
         if (this.state.messageValue === "") return;
 
-        console.log(this.state.messageValue);
+        this.props.sendMessage(this.state.messageValue);
+
         this.setState({ messageValue: "" });
     }
 
@@ -34,32 +36,36 @@ class TextField extends React.Component {
             <div
                 className={"TextField"}
                 style={{
-                    width: this.props.width,
+                    width: this.props.windowSize.width - 251,
                     position: "absolute",
                     bottom: 0,
-                    height: 250,
+                    height: 100,
                     borderTop: "1px solid #292C33",
-                    padding: 20
+                    padding: 10,
+                    boxSizing: "border-box"
                 }}
             >
-                <input
+                <textarea
                     className={classes.textField}
                     type="text"
                     style={{
                         position: "absolute",
-                        marginLeft: 0,
-                        marginBottom: 10,
-                        width: this.props.width * 0.75,
-                        height: "85%",
+                        width: this.props.windowSize.width - 251 - 200,
+                        maxHeight: 80,
+                        resize: "none",
+                        wordWrap: "break-word",
                         outline: "none",
                         border: "1px solid #292C33",
-                        padding: 10
+                        height: 90,
+                        fontSize: 12,
+                        boxSizing: "border-box",
+                        padding: 5
                     }}
                     value={this.state.messageValue}
-                    onKeyPress={(e) => (e.key === "Enter" ? this.onSend() : null)}
+                    onKeyPress={(e) => (e.key === "Enter" ? this.onSend(e) : null)}
                     onChange={(e) => this.setState({ messageValue: e.target.value })}
                 />
-                <Button disableRipple className={classes.sendButton} onClick={() => this.onSend()}>
+                <Button disableRipple className={classes.sendButton} onClick={(e) => this.onSend(e)}>
                     Send
                 </Button>
             </div>
