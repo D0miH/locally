@@ -42,7 +42,7 @@ socket.bind(41234);
 // function to send a message
 function sendMessage(event, text) {
     let msg = Buffer.from(text);
-    socket.send(msg, 41234, "0.0.0.0");
+    socket.send(msg, 41234, "255.255.255.255");
 }
 // when a the renderer wants to send a message send it using the socket
 ipcMain.on("sendMessage", (event, message) => sendMessage(event, message));
