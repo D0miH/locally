@@ -6,8 +6,7 @@ const path = require("path");
 const isDev = require("electron-is-dev");
 const ipcMain = require("electron").ipcMain;
 const dgram = require("dgram");
-const server = dgram.createSocket("udp4");
-const client = dgram.createSocket("udp4");
+const socket = dgram.createSocket("udp4");
 
 let mainWindow;
 
@@ -31,17 +30,19 @@ app.on("activate", () => {
     }
 });
 
-// function to send a message
-function sendMessage(event, text) {
-    let msg = Buffer.from(text);
-    client.send(msg, 41234, "0.0.0.0");
-}
-
-ipcMain.on("sendMessage", (event, message) => sendMessage(event, message));
-
+// allow the socket to broadcast
+socket.on("listening", () => socket.setBroadcast(true));
 // react when a new message arrives
-server.on("message", (msg, rinfo) => {
+socket.on("message", (msg, rinfo) => {
     mainWindow.webContents.send("receivedMessage", msg.toString());
 });
 // listen on port 41234
-server.bind(41234);
+socket.bind(41234);
+
+// function to send a message
+function sendMessage(event, text) {
+    let msg = Buffer.from(text);
+    socket.send(msg, 41234, "0.0.0.0");
+}
+// when a the renderer wants to send a message send it using the socket
+ipcMain.on("sendMessage", (event, message) => sendMessage(event, message));
