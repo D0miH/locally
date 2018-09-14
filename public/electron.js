@@ -6,6 +6,7 @@ const path = require("path");
 const isDev = require("electron-is-dev");
 const ipcMain = require("electron").ipcMain;
 const dgram = require("dgram");
+const ip = require("ip");
 const socket = dgram.createSocket("udp4");
 
 let mainWindow;
@@ -33,7 +34,10 @@ app.on("activate", () => {
 // allow the socket to broadcast
 socket.on("listening", () => socket.setBroadcast(true));
 // react when a new message arrives
-socket.on("message", (msg, rinfo) => {
+socket.on("message", (msg, msgInfo) => {
+    if (msgInfo.address === ip.address()) {
+        return;
+    }
     mainWindow.webContents.send("receivedMessage", msg.toString());
 });
 // listen on port 41234
