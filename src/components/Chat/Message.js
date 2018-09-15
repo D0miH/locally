@@ -7,6 +7,8 @@ const style = (theme) => ({
         borderRadius: 10,
         paddingLeft: 10,
         paddingRight: 10,
+        paddingTop: 5,
+        paddingBottom: 5,
         margin: 5,
         color: theme.palette.primary.contrastText,
         fontWeight: "lighter",
