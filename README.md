@@ -1,2 +1,2 @@
 # Locally
-An electron app to write messages and send files in the local network.
+An electron app to write messages in the local network.
