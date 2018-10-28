@@ -7,7 +7,6 @@ const isDev = require("electron-is-dev");
 const ipcMain = require("electron").ipcMain;
 const dgram = require("dgram");
 const ip = require("ip");
-const socket = dgram.createSocket("udp4");
 
 let mainWindow;
 
@@ -17,36 +16,43 @@ function createWindow() {
     mainWindow.on("closed", () => (mainWindow = null));
 }
 
+// create the window when the app is ready
 app.on("ready", createWindow);
-
+// when the window is closed quit the app
 app.on("window-all-closed", () => {
+    // when the os is MacOS don't quit the app
     if (process.platform !== "darwin") {
         app.quit();
     }
 });
-
+// if the app is activated on macos create a new window
 app.on("activate", () => {
     if (mainWindow === null) {
         createWindow();
     }
 });
 
+// create a new udp4 socket
+const socket = dgram.createSocket("udp4");
 // allow the socket to broadcast
 socket.on("listening", () => socket.setBroadcast(true));
-// react when a new message arrives
+
+// callback when a message is received
 socket.on("message", (msg, msgInfo) => {
     if (msgInfo.address === ip.address()) {
+        // if the source address is the own ip address return
         return;
+    } else {
+        // else forward the message the the app
+        mainWindow.webContents.send("receivedMessage", msg.toString());
     }
-    mainWindow.webContents.send("receivedMessage", msg.toString());
 });
+
+// when the user wants to send a message send it using the socket
+ipcMain.on("sendMessage", (event, message) => {
+    let msg = Buffer.from(message);
+    socket.send(msg, 41234, "255.255.255.255");
+});
+
 // listen on port 41234
 socket.bind(41234);
-
-// function to send a message
-function sendMessage(event, text) {
-    let msg = Buffer.from(text);
-    socket.send(msg, 41234, "255.255.255.255");
-}
-// when a the renderer wants to send a message send it using the socket
-ipcMain.on("sendMessage", (event, message) => sendMessage(event, message));

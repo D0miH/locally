@@ -22,6 +22,7 @@ class ChatHistory extends React.Component {
     messageHistoryRef = null;
 
     componentDidUpdate(prevProps, prevState, snapshot) {
+        // if the component did update and rerender scroll all the way to the bottom
         this.messageHistoryRef.scrollTop = this.messageHistoryRef.scrollHeight;
     }
 

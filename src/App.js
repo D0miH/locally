@@ -24,29 +24,47 @@ class App extends React.Component {
     };
 
     componentDidMount() {
+        // add an event listener to handle resizing of the window
         window.addEventListener("resize", this.handleResize.bind(this));
         this.setState({ windowSize: { width: window.innerWidth, height: window.innerHeight } });
 
+        // add a listener to the channel "receivedMessage" of the ipc to receive messages
         ipcRenderer.on("receivedMessage", (event, message) => this.receiveMessage(message));
     }
 
     componentWillUnmount() {
+        // when the component is going to be unmounted remove the event listener for resizing the window
         window.removeEventListener("resize", this.handleResize);
     }
 
+    /**
+     * Handles the resizing of the window.
+     * @param e The resizing event.
+     */
     handleResize(e) {
         e.preventDefault();
         this.setState({ windowSize: { width: window.innerWidth, height: window.innerHeight } });
     }
 
+    /**
+     * Sends a message.
+     * @param message   The message that is going to be sent.
+     */
     sendMessage(message) {
+        // get the current history and add the message to the local chat history
         let tmpArray = this.state.messageHistory;
         tmpArray.push({ received: false, text: message });
-
-        ipcRenderer.send("sendMessage", message);
+        // update the message history
         this.setState({ messageHistory: tmpArray });
+
+        // send the message to the main process to send it using sockets
+        ipcRenderer.send("sendMessage", message);
     }
 
+    /**
+     * This function is called when a new message is received. The received message is added to the chat history.
+     * @param message   The message that was received.
+     */
     receiveMessage(message) {
         let tmpArray = this.state.messageHistory;
         tmpArray.push({ received: true, text: message });
