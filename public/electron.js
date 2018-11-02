@@ -79,7 +79,7 @@ pingSocket.on("message", (msg, msgInfo) => {
     } else {
         // check if the received message is "ping". When this is the case, send the source ip to the web application.
         if (msg.toString() === "ping") {
-            mainWindow.webContents.send("newUser", ip.address().toString());
+            mainWindow.webContents.send("newUser", msgInfo.address);
         }
     }
 });
