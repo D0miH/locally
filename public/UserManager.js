@@ -32,6 +32,8 @@ class UserManager {
         // send other users a ping to get their data
         let ping = Buffer.from("ping");
         this.socket.send(ping, this._sendingPort, "255.255.255.255");
+
+        console.log("ping");
     }
 
     /**

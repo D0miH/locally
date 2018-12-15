@@ -74,7 +74,7 @@ ipcMain.on("checkForUsers", (event, message) => {
 let answerPingCallback = function(msg, msgInfo) {
     if(msgInfo.address === ip.address()) {
         return;
-    } else if(msg === "ping"){
+    } else if(msg.toString() === "ping"){
         console.log("pong");
         userManager.sendData(msgInfo.address);
     }
