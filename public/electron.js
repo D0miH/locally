@@ -8,6 +8,9 @@ const ipcMain = require("electron").ipcMain;
 const dgram = require("dgram");
 const ip = require("ip");
 
+const Messenger = require("./Messenger.js");
+const messenger = new Messenger();
+
 let mainWindow;
 let pingIntervalHandle;
 
@@ -19,6 +22,7 @@ function createWindow() {
 
 // create the window when the app is ready
 app.on("ready", createWindow);
+
 // when the window is closed quit the app
 app.on("window-all-closed", () => {
     // when the os is MacOS don't quit the app
@@ -27,27 +31,26 @@ app.on("window-all-closed", () => {
     }
 
     // close the sockets
-    messageSocket.close();
+    messenger.close();
     pingSocket.close();
 });
+
 // if the app is activated on macos create a new window
 app.on("activate", () => {
     if (mainWindow === null) {
         createWindow();
     }
-    messageSocket.bind(41234);
     pingSocket.bind(41235);
     clearInterval(pingIntervalHandle);
 });
 
-// create a new udp4 messageSocket for receiving
-const messageSocket = dgram.createSocket("udp4");
-// allow the messageSocket to broadcast
-// TODO: disable broadcast. This is not necessary for the messageSocket
-messageSocket.on("listening", () => messageSocket.setBroadcast(true));
+// when the user wants to send a message send it using the messageSocket
+ipcMain.on("sendMessage", (event, message) => {
+    messenger.sendMessage(message, "255.255.255.255");
+});
 
-// callback when a message is received
-messageSocket.on("message", (msg, msgInfo) => {
+
+let sendMessageToApplication = function(msg, msgInfo) {
     if (msgInfo.address === ip.address()) {
         // if the source address is the own ip address return
         return;
@@ -55,15 +58,16 @@ messageSocket.on("message", (msg, msgInfo) => {
         // else forward the message the the app
         mainWindow.webContents.send("receivedMessage", msg.toString());
     }
-});
-// when the user wants to send a message send it using the messageSocket
-ipcMain.on("sendMessage", (event, message) => {
-    let msg = Buffer.from(message);
-    messageSocket.send(msg, 41234, "255.255.255.255");
-});
-// listen on port 41234
-messageSocket.bind(41234);
+};
+// initialize the messenger
+messenger.sendOnPort(41234);
+messenger.listenOnPort(41234);
 
+messenger.onMessageReceived(sendMessageToApplication);
+
+// #####################
+// ### PING SOCKET #####
+// #####################
 // create a new socket to ping and discover new users
 const pingSocket = dgram.createSocket("udp4");
 // allow the pingSocket to broadcast
