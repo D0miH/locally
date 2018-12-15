@@ -5,11 +5,10 @@ const BrowserWindow = electron.BrowserWindow;
 const path = require("path");
 const isDev = require("electron-is-dev");
 const ipcMain = require("electron").ipcMain;
-const dgram = require("dgram");
 const ip = require("ip");
 
-const Messenger = require("./Messenger.js");
-const messenger = new Messenger();
+const messenger = require("./Messenger.js");
+const userManager = require("./UserManager.js");
 
 let mainWindow;
 
@@ -40,14 +39,14 @@ app.on("activate", () => {
     }
 });
 
-// when the user wants to send a message send it using the messageSocket
-ipcMain.on("sendMessage", (event, message) => {
-    messenger.sendMessage(message, "255.255.255.255");
-});
-
 // ###################
 // #### MESSENGER ####
 // ###################
+
+// when the user wants to send a message send it using the messenger
+ipcMain.on("sendMessage", (event, message) => {
+    messenger.sendMessage(message, "255.255.255.255");
+});
 
 let sendMessageToApplication = function(msg, msgInfo) {
     if (msgInfo.address === ip.address()) {
@@ -61,5 +60,26 @@ let sendMessageToApplication = function(msg, msgInfo) {
 // initialize the messenger
 messenger.sendOnPort(41234);
 messenger.listenOnPort(41234);
-
 messenger.onMessageReceived(sendMessageToApplication);
+
+
+// ######################
+// #### USER MANAGER ####
+// ######################
+
+ipcMain.on("checkForUsers", (event, message) => {
+    userManager.checkForUsers()
+});
+
+let answerPingCallback = function(msg, msgInfo) {
+    if(msgInfo.address === ip.address()) {
+        return;
+    } else if(msg === "ping"){
+        console.log("pong");
+        userManager.sendData(msgInfo.address);
+    }
+};
+
+userManager.sendOnPort(41235);
+userManager.listenOnPort(41235);
+userManager.onPingReceived(answerPingCallback);

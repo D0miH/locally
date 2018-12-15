@@ -1,6 +1,6 @@
 const dgram = require("dgram");
 
-module.exports = class Sender {
+class Sender {
 
     constructor() {
         // create the socket
@@ -51,4 +51,6 @@ module.exports = class Sender {
         let message = Buffer.from(msg);
         this.socket.send(message, this.sendingPort, address);
     }
-};
+}
+
+module.exports = new Sender();

@@ -4,6 +4,8 @@ import withStyles from "@material-ui/core/styles/withStyles";
 import SearchIcon from "@material-ui/icons/Search";
 import RefreshIcon from "@material-ui/icons/Refresh";
 
+const { ipcRenderer } = window.require("electron");
+
 const styles = (theme) => ({
     containerDiv: {
         padding: 0,
@@ -41,12 +43,17 @@ const styles = (theme) => ({
 });
 
 class SearchBar extends React.Component {
+
+    checkForUsers = function() {
+        ipcRenderer.send("checkForUsers");
+    };
+
     render() {
         const { classes } = this.props;
 
         return (
             <div className={classes.containerDiv}>
-                <div className={classes.refreshDiv}>
+                <div className={classes.refreshDiv} onClick={this.checkForUsers}>
                     <RefreshIcon className={classes.refreshIcon} />
                 </div>
                 <div className={classes.searchSymbol}>
