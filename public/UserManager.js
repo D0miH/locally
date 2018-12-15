@@ -13,6 +13,8 @@ class UserManager {
     listenOnPort(portNum) {
         this._listeningPort = portNum;
         this.socket.bind(portNum);
+
+        this.socket.on("listening", () => this.socket.setBroadcast(true));
     }
 
     /**
