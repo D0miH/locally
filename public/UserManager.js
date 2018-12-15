@@ -1,7 +1,6 @@
 const dgram = require("dgram");
 
 class UserManager {
-
     constructor() {
         this.socket = dgram.createSocket("udp4");
     }

@@ -62,21 +62,21 @@ messenger.sendOnPort(41234);
 messenger.listenOnPort(41234);
 messenger.onMessageReceived(sendMessageToApplication);
 
-
 // ######################
 // #### USER MANAGER ####
 // ######################
 
 ipcMain.on("checkForUsers", (event, message) => {
-    userManager.checkForUsers()
+    userManager.checkForUsers();
 });
 
 let answerPingCallback = function(msg, msgInfo) {
-    if(msgInfo.address === ip.address()) {
+    if (msgInfo.address === ip.address()) {
         return;
-    } else if(msg.toString() === "ping"){
-        console.log("pong");
+    } else if (msg.toString() === "ping") {
         userManager.sendData(msgInfo.address);
+    } else if (msg.toString() === "pong") {
+        console.log("pong");
     }
 };
 
