@@ -1,9 +1,11 @@
 const dgram = require("dgram");
+const ip = require("ip");
 
-class Sender {
+class Messenger {
     constructor() {
         // create the socket
         this.socket = dgram.createSocket("udp4");
+        this.mainWindow = null;
     }
 
     /**
@@ -11,11 +13,12 @@ class Sender {
      * @param portNum
      */
     listenOnPort(portNum) {
-        this.listeningPort = portNum;
+        this._listeningPort = portNum;
         this.socket.bind(portNum);
 
         // need to broadcast
         this.socket.on("listening", () => this.socket.setBroadcast(true));
+        this.socket.on("message", this.onMessageReceived.bind(this));
     }
 
     /**
@@ -23,7 +26,7 @@ class Sender {
      * @param portNum
      */
     sendOnPort(portNum) {
-        this.sendingPort = portNum;
+        this._sendingPort = portNum;
     }
 
     /**
@@ -34,11 +37,18 @@ class Sender {
     }
 
     /**
-     * When a message is received the given callback is executed.
-     * @param callback
+     * This function is called when a message was received.
+     * @param msg   The received message.
+     * @param msgInfo   Some information about the received message.
      */
-    onMessageReceived(callback) {
-        this.socket.on("message", (msg, msgInfo) => callback(msg, msgInfo));
+    onMessageReceived(msg, msgInfo) {
+        if (msgInfo.address === ip.address()) {
+            // if the source address is the own ip address return
+            return;
+        } else {
+            // else forward the message the the app
+            this.mainWindow.webContents.send("receivedMessage", msg.toString());
+        }
     }
 
     /**
@@ -48,8 +58,8 @@ class Sender {
      */
     sendMessage(msg, address) {
         let message = Buffer.from(msg);
-        this.socket.send(message, this.sendingPort, address);
+        this.socket.send(message, this._sendingPort, address);
     }
 }
 
-module.exports = new Sender();
+module.exports = new Messenger();

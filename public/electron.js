@@ -16,6 +16,10 @@ function createWindow() {
     mainWindow = new BrowserWindow({ width: 900, height: 680, icon: path.join(__dirname, "assets/icons/png/64x64.png") });
     mainWindow.loadURL(isDev ? "http://localhost:3000" : `file://${path.join(__dirname, "../build/index.html")}`);
     mainWindow.on("closed", () => (mainWindow = null));
+
+    // set the reference to the main window
+    messenger.mainWindow = mainWindow;
+    userManager.mainWindow = mainWindow;
 }
 
 // create the window when the app is ready
@@ -48,38 +52,19 @@ ipcMain.on("sendMessage", (event, message) => {
     messenger.sendMessage(message, "255.255.255.255");
 });
 
-let sendMessageToApplication = function(msg, msgInfo) {
-    if (msgInfo.address === ip.address()) {
-        // if the source address is the own ip address return
-        return;
-    } else {
-        // else forward the message the the app
-        mainWindow.webContents.send("receivedMessage", msg.toString());
-    }
-};
 // initialize the messenger
 messenger.sendOnPort(41234);
 messenger.listenOnPort(41234);
-messenger.onMessageReceived(sendMessageToApplication);
 
 // ######################
 // #### USER MANAGER ####
 // ######################
 
+// listen for a request to check for new users
 ipcMain.on("checkForUsers", (event, message) => {
     userManager.checkForUsers();
 });
 
-let answerPingCallback = function(msg, msgInfo) {
-    if (msgInfo.address === ip.address()) {
-        return;
-    } else if (msg.toString() === "ping") {
-        userManager.sendData(msgInfo.address);
-    } else if (msg.toString() === "pong") {
-        console.log("pong");
-    }
-};
-
 userManager.sendOnPort(41235);
 userManager.listenOnPort(41235);
-userManager.onPingReceived(answerPingCallback);
+userManager.activate();
