@@ -1,11 +1,18 @@
 const dgram = require("dgram");
 const ip = require("ip");
 
+const ipcMain = require("electron").ipcMain;
+
 class Messenger {
     constructor() {
         // create the socket
         this.socket = dgram.createSocket("udp4");
         this.mainWindow = null;
+
+        // when the user wants to send a message send it using the messenger
+        ipcMain.on("sendMessage", (event, message) => {
+            this.sendMessage(message, "255.255.255.255");
+        });
     }
 
     /**

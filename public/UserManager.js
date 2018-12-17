@@ -1,10 +1,17 @@
 const dgram = require("dgram");
 const ip = require("ip");
 
+const ipcMain = require("electron").ipcMain;
+
 class UserManager {
     constructor() {
         this.socket = dgram.createSocket("udp4");
         this.mainWindow = null;
+
+        // listen for a request to check for new users
+        ipcMain.on("checkForUsers", (event, message) => {
+            this.checkForUsers();
+        });
     }
 
     /**

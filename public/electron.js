@@ -1,12 +1,10 @@
 const electron = require("electron");
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
-
 const path = require("path");
 const isDev = require("electron-is-dev");
-const ipcMain = require("electron").ipcMain;
-const ip = require("ip");
 
+// include all own modules
 const messenger = require("./Messenger.js");
 const userManager = require("./UserManager.js");
 
@@ -47,11 +45,6 @@ app.on("activate", () => {
 // #### MESSENGER ####
 // ###################
 
-// when the user wants to send a message send it using the messenger
-ipcMain.on("sendMessage", (event, message) => {
-    messenger.sendMessage(message, "255.255.255.255");
-});
-
 // initialize the messenger
 messenger.sendOnPort(41234);
 messenger.listenOnPort(41234);
@@ -59,11 +52,6 @@ messenger.listenOnPort(41234);
 // ######################
 // #### USER MANAGER ####
 // ######################
-
-// listen for a request to check for new users
-ipcMain.on("checkForUsers", (event, message) => {
-    userManager.checkForUsers();
-});
 
 userManager.sendOnPort(41235);
 userManager.listenOnPort(41235);
