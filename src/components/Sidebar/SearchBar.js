@@ -43,7 +43,6 @@ const styles = (theme) => ({
 });
 
 class SearchBar extends React.Component {
-
     checkForUsers = function() {
         ipcRenderer.send("checkForUsers");
     };
