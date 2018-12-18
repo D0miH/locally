@@ -3,6 +3,8 @@ import Sidebar from "./components/Sidebar/Sidebar";
 import TextField from "./components/TextEntry/TextField";
 import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 import ChatHistory from "./components/Chat/ChatHistory";
+import AppStore from "./AppStore";
+import { observer } from "mobx-react";
 
 const { ipcRenderer } = window.require("electron");
 
@@ -19,14 +21,20 @@ const theme = createMuiTheme({
 
 class App extends React.Component {
     state = {
-        windowSize: { width: window.innerWidth, height: window.innerHeight },
         messageHistory: []
     };
+
+    constructor(props) {
+        super(props);
+
+        // intantiate the app store
+        this.appStore = new AppStore();
+    }
 
     componentDidMount() {
         // add an event listener to handle resizing of the window
         window.addEventListener("resize", this.handleResize.bind(this));
-        this.setState({ windowSize: { width: window.innerWidth, height: window.innerHeight } });
+        this.appStore.uiStore.setWindowSize(window.innerWidth, window.innerHeight);
 
         // add a listener to the channel "receivedMessage" of the ipc to receive messages
         ipcRenderer.on("receivedMessage", (event, message) => this.receiveMessage(message));
@@ -42,8 +50,8 @@ class App extends React.Component {
      * @param e The resizing event.
      */
     handleResize(e) {
+        this.appStore.uiStore.setWindowSize(window.innerWidth, window.innerHeight);
         e.preventDefault();
-        this.setState({ windowSize: { width: window.innerWidth, height: window.innerHeight } });
     }
 
     /**
@@ -82,12 +90,12 @@ class App extends React.Component {
                         style={{
                             position: "relative",
                             float: "left",
-                            width: this.state.windowSize.width - 251,
-                            height: this.state.windowSize.height
+                            width: this.appStore.uiStore.windowSize.width - 251,
+                            height: this.appStore.uiStore.windowSize.height
                         }}
                     >
-                        <ChatHistory windowSize={this.state.windowSize} messageHistory={this.state.messageHistory} />
-                        <TextField windowSize={this.state.windowSize} sendMessage={(message) => this.sendMessage(message)} />
+                        <ChatHistory windowSize={this.appStore.uiStore.windowSize} messageHistory={this.state.messageHistory} />
+                        <TextField windowSize={this.appStore.uiStore.windowSize} sendMessage={(message) => this.sendMessage(message)} />
                     </div>
                 </div>
             </MuiThemeProvider>
@@ -95,4 +103,4 @@ class App extends React.Component {
     }
 }
 
-export default App;
+export default observer(App);
