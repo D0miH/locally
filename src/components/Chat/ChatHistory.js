@@ -1,6 +1,7 @@
 import React from "react";
 import Message from "./Message";
 import withStyles from "@material-ui/core/styles/withStyles";
+import { observer } from "mobx-react";
 
 const style = (theme) => ({
     chatRoom: {
@@ -49,4 +50,4 @@ class ChatHistory extends React.Component {
     }
 }
 
-export default withStyles(style)(ChatHistory);
+export default withStyles(style)(observer(ChatHistory));

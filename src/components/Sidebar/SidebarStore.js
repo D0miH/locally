@@ -1,4 +1,4 @@
-import { observable, computed, decorate } from "mobx";
+import { observable, decorate } from "mobx";
 import React from "react";
 
 class SidebarStore {

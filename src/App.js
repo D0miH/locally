@@ -20,10 +20,6 @@ const theme = createMuiTheme({
 });
 
 class App extends React.Component {
-    state = {
-        messageHistory: []
-    };
-
     constructor(props) {
         super(props);
 
@@ -60,10 +56,7 @@ class App extends React.Component {
      */
     sendMessage(message) {
         // get the current history and add the message to the local chat history
-        let tmpArray = this.state.messageHistory;
-        tmpArray.push({ received: false, text: message });
-        // update the message history
-        this.setState({ messageHistory: tmpArray });
+        this.appStore.messageHistory.push({ received: false, text: message });
 
         // send the message to the main process to send it using sockets
         ipcRenderer.send("sendMessage", message);
@@ -74,9 +67,7 @@ class App extends React.Component {
      * @param message   The message that was received.
      */
     receiveMessage(message) {
-        let tmpArray = this.state.messageHistory;
-        tmpArray.push({ received: true, text: message });
-        this.setState({ messageHistory: tmpArray });
+        this.appStore.messageHistory.push({ received: true, text: message });
     }
 
     render() {
@@ -94,7 +85,7 @@ class App extends React.Component {
                             height: this.appStore.uiStore.windowSize.height
                         }}
                     >
-                        <ChatHistory windowSize={this.appStore.uiStore.windowSize} messageHistory={this.state.messageHistory} />
+                        <ChatHistory windowSize={this.appStore.uiStore.windowSize} messageHistory={this.appStore.messageHistory} />
                         <TextField windowSize={this.appStore.uiStore.windowSize} sendMessage={(message) => this.sendMessage(message)} />
                     </div>
                 </div>
