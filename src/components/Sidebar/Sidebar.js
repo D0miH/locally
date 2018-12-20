@@ -1,15 +1,22 @@
 import React from "react";
+import { observer } from "mobx-react";
+// import own components
 import SearchBar from "./SearchBar";
+// import material ui components
 import ListItem from "@material-ui/core/ListItem/ListItem";
 import List from "@material-ui/core/List/List";
 import ListItemText from "@material-ui/core/ListItemText/ListItemText";
+import SidebarStore from "./SidebarStore";
+// import the ipc renderer to communicate with the electron app
 const { ipcRenderer } = window.require("electron");
 
 class Sidebar extends React.Component {
-    state = {
-        ipList: [],
-        userList: []
-    };
+    constructor(props) {
+        super(props);
+
+        // initialize the sidebar store
+        this.sidebarStore = new SidebarStore();
+    }
 
     componentDidMount() {
         // add a listener to the channel "newUser" of the ipc to receive messages
@@ -18,37 +25,26 @@ class Sidebar extends React.Component {
 
     detectedNewUser(ip) {
         // add the new ip to the user list
-        let tmpList = this.state.ipList;
-        let index = tmpList.indexOf(ip);
+        let index = this.sidebarStore.ipList.indexOf(ip);
         if (index === -1) {
-            tmpList.push(ip);
-        } else {
-            return;
+            this.sidebarStore.ipList.push(ip);
         }
-        this.setState({ ipList: tmpList });
-        this.getListItems();
-    }
-
-    getListItems() {
-        let list = [];
-        this.state.ipList.forEach((ip, index) => {
-            list.push(
-                <ListItem key={"listItem" + index} button style={{ color: "white" }}>
-                    <ListItemText primary={ip} />
-                </ListItem>
-            );
-        });
-        this.setState({ userList: list });
     }
 
     render() {
         return (
             <div className={"Sidebar"} style={{ width: 250, height: "100%", position: "relative", float: "left", borderRight: "1px solid #292C33" }}>
                 <SearchBar />
-                <List>{this.state.userList}</List>
+                <List>
+                    {this.sidebarStore.ipList.map((ip, index) => (
+                        <ListItem key={"listItem" + index} button style={{ color: "white" }}>
+                            <ListItemText primary={ip} />
+                        </ListItem>
+                    ))}
+                </List>
             </div>
         );
     }
 }
 
-export default Sidebar;
+export default observer(Sidebar);

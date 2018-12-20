@@ -1,6 +1,5 @@
-import { observable, decorate } from "mobx";
 // import the sub stores
-import UiStore from "./components/UiStore";
+import UiStore from "./stores/UiStore";
 
 class AppStore {
     constructor() {
